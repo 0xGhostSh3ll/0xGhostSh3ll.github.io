@@ -17,8 +17,12 @@ header {
 
 .logo {
   max-width: 100%;
-  height: auto;
   max-height: 250px;
+  height: auto;
+}
+
+.tagline {
+  color: #00ff9c;
 }
 
 nav {
@@ -31,4 +35,20 @@ nav {
 nav a {
   color: #00ff9c;
   text-decoration: none;
+}
+
+section {
+  border: 1px solid #333;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+h2 {
+  color: #00ff9c;
+  margin-top: 0;
+}
+
+footer {
+  text-align: center;
+  color: #777;
 }
