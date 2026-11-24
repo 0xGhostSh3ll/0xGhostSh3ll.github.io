@@ -5,50 +5,46 @@ body {
   margin: 0;
 }
 
-.wrapper {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-header {
-  text-align: center;
-}
-
 .logo {
-  max-width: 100%;
-  max-height: 250px;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 90px;
   height: auto;
 }
 
-.tagline {
+.wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.section-title {
+  color: #00ff9c;
+  text-align: center;
+}
+
+.member-card {
+  width: 320px;
+  min-height: 320px;
+  box-sizing: border-box;
+  margin: 20px auto;
+  padding: 20px;
+  border: 2px solid #00ff9c;
+  background: #11111c;
+}
+
+.member-card h3 {
+  margin: 0;
   color: #00ff9c;
 }
 
-nav {
-  text-align: center;
-  padding: 10px;
-  border-top: 1px solid #444;
-  border-bottom: 1px solid #444;
+.role {
+  color: #888;
+  margin-top: 4px;
 }
 
-nav a {
+.links a {
   color: #00ff9c;
   text-decoration: none;
-}
-
-section {
-  border: 1px solid #333;
-  padding: 15px;
-  margin: 15px 0;
-}
-
-h2 {
-  color: #00ff9c;
-  margin-top: 0;
-}
-
-footer {
-  text-align: center;
-  color: #777;
 }
