@@ -20,16 +20,22 @@
       color-scheme: dark;
     }
     * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
     body {
       margin: 0;
       background: var(--bg);
       color: var(--text);
       font: 15px/1.65 "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+      overflow-x: hidden;
     }
-    main { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
+    main {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 48px max(16px, env(safe-area-inset-right)) 64px max(16px, env(safe-area-inset-left));
+    }
     h1 {
       margin: 0 0 4px;
-      font-size: clamp(1.9rem, 6vw, 2.6rem);
+      font-size: clamp(1.7rem, 6vw, 2.6rem);
       font-weight: 600;
       letter-spacing: -0.01em;
       color: #eef2fa;
@@ -39,8 +45,14 @@
     a:hover { text-decoration: underline; }
     a:focus-visible, button:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 
-    /* Hex dump */
-    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 28px; align-items: start; margin-bottom: 44px; }
+    /* Hero: text + hex dump on the left, portrait on the right */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) clamp(200px, 28vw, 300px);
+      gap: clamp(20px, 4vw, 40px);
+      align-items: start;
+      margin-bottom: 44px;
+    }
     .portrait { margin: 0; }
     .portrait img {
       display: block;
@@ -52,6 +64,7 @@
     .portrait figcaption { margin-top: 6px; font-size: 12px; color: var(--dim); }
     .lab { display: grid; gap: 14px; justify-items: start; }
     .hex {
+      max-width: 100%;
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 6px;
@@ -87,13 +100,6 @@
     }
     #replay:hover { border-color: var(--cyan); }
 
-    @media (max-width: 640px) {
-      .hero { grid-template-columns: 1fr; }
-      .portrait { order: -1; max-width: 220px; }
-      .hex { font-size: 12px; padding: 10px; }
-      .row { gap: 10px; }
-    }
-
     /* Writeups */
     h2 {
       margin: 0 0 4px;
@@ -112,10 +118,105 @@
       border-bottom: 1px solid var(--line);
     }
     li time { color: var(--dim); font-size: .9em; }
-    .links { display: flex; gap: 20px; }
+    .links { display: flex; flex-wrap: wrap; gap: 10px 20px; }
+    .linkbtn { background: none; border: 0; padding: 0; font: inherit; color: var(--cyan); cursor: pointer; }
+    .linkbtn:hover { text-decoration: underline; }
+
+    /* Hex rain on the sides (desktop only) */
+    #rain {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: .35;
+      pointer-events: none;
+      -webkit-mask-image: linear-gradient(90deg, #000 0, transparent 28%, transparent 72%, #000 100%);
+      mask-image: linear-gradient(90deg, #000 0, transparent 28%, transparent 72%, #000 100%);
+    }
+
+    /* Retro "Virus Alert" popup */
+    .win {
+      position: fixed;
+      top: max(12px, env(safe-area-inset-top));
+      left: max(12px, env(safe-area-inset-left));
+      width: min(320px, calc(100vw - 24px));
+      z-index: 20;
+      padding: 3px;
+      background: #c0c0c0;
+      color: #000;
+      font: 12px/1.3 Tahoma, "MS Sans Serif", Arial, sans-serif;
+      box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #dfdfdf, inset -2px -2px #808080, inset 2px 2px #fff, 4px 6px 0 rgba(0,0,0,.45);
+    }
+    .win[hidden] { display: none; }
+    .win-title {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 3px 4px; font-weight: 700; color: #fff;
+      background: linear-gradient(90deg, #000080, #1084d0);
+    }
+    .win-ctrl { display: flex; gap: 2px; }
+    .win-body { display: flex; align-items: center; gap: 14px; padding: 18px 14px 12px; }
+    .win-note { margin: 0; padding: 0 14px 10px; color: #000080; }
+    .win-actions { display: flex; justify-content: center; gap: 12px; padding: 8px 0 12px; }
+    .bar {
+      height: 18px; margin: 0 14px 6px; padding: 2px; background: #fff;
+      box-shadow: inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #0a0a0a, inset -2px -2px #dfdfdf;
+    }
+    .bar-fill {
+      height: 100%; width: 0;
+      background: repeating-linear-gradient(90deg, #000080 0 8px, transparent 8px 10px);
+    }
+    .w98btn {
+      min-width: 75px; padding: 4px 12px; border: 0; background: #c0c0c0; color: #000; font: inherit; cursor: default;
+      box-shadow: inset -1px -1px #0a0a0a, inset 1px 1px #fff, inset -2px -2px #808080, inset 2px 2px #dfdfdf;
+    }
+    .w98btn:active { box-shadow: inset 1px 1px #0a0a0a, inset -1px -1px #fff, inset 2px 2px #808080, inset -2px -2px #dfdfdf; }
+    .w98btn:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }
+    .w98btn.sm {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 0; width: 16px; height: 14px; padding: 0; font-size: 11px; font-weight: 700; line-height: 1;
+    }
+
+    /* Responsive: large screens */
+    @media (min-width: 1600px) {
+      body { font-size: 17px; }
+      main { max-width: 1180px; }
+      .hero { grid-template-columns: minmax(0, 1fr) 340px; }
+      .hex { font-size: 15px; }
+      .log { font-size: 15px; }
+    }
+
+    /* Responsive: tablets and phones */
+    @media (max-width: 900px) {
+      #rain { display: none; }
+    }
+    @media (max-width: 640px) {
+      main { padding-top: 32px; }
+      .hero { grid-template-columns: 1fr; }
+      .portrait { order: -1; max-width: 200px; }
+      .hex { font-size: 12px; padding: 10px; }
+      .row { gap: 10px; }
+    }
+    @media (max-width: 480px) {
+      li { grid-template-columns: 1fr; gap: 2px; }
+    }
+    @media (max-width: 380px) {
+      .hex { font-size: 11px; padding: 8px; }
+      .row { gap: 8px; }
+    }
+
+    /* Responsive: touch screens get bigger tap targets */
+    @media (pointer: coarse) {
+      #replay { padding: 8px 14px; }
+      .linkbtn { padding: 6px 0; }
+      .w98btn { padding: 8px 16px; }
+      .w98btn.sm { width: 24px; height: 22px; padding: 0; }
+    }
   </style>
 </head>
 <body>
+  <canvas id="rain" aria-hidden="true"></canvas>
+
   <main>
     <header class="hero">
       <div class="intro">
@@ -137,9 +238,9 @@
       </div>
 
       <figure class="portrait">
-        <img src="images/malware_hero.jpg" width="520" height="924"
+        <img src="image/malware_hero.jpg" width="520" height="924"
              alt="Pixel art portrait of a white-haired armored warrior with a golden halo, red cape and a sword">
-        <figcaption>avatar.jpg</figcaption>
+        <figcaption>malware_hero.jpg</figcaption>
       </figure>
     </header>
 
@@ -151,12 +252,38 @@
     <div class="links">
       <a href="https://hackerone.com/0xghostshell">HackerOne</a>
       <a href="https://github.com/0xGhostSh3ll">GitHub</a>
+      <button type="button" id="runSample" class="linkbtn">Run sample.exe</button>
     </div>
   </main>
 
+  <div class="win" id="virus" role="alertdialog" aria-labelledby="vtitle">
+    <div class="win-title">
+      <span id="vtitle">Virus Alert!</span>
+      <span class="win-ctrl">
+        <span class="w98btn sm" aria-hidden="true">?</span>
+        <button type="button" class="w98btn sm" id="vclose" aria-label="Close">&times;</button>
+      </span>
+    </div>
+    <div class="win-body">
+      <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="6" y="3" width="20" height="3" fill="#000"/>
+        <rect x="6" y="26" width="20" height="3" fill="#000"/>
+        <path d="M8 6h16c0 6-5 8-5 10s5 4 5 10H8c0-6 5-8 5-10S8 12 8 6z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+        <path d="M11 24h10c-1-3-3-4-5-4s-4 1-5 4z" fill="#808080"/>
+      </svg>
+      <p style="margin:0">Downloading Virus...</p>
+    </div>
+    <div class="bar"><div class="bar-fill" id="vfill"></div></div>
+    <p class="win-note" id="vnote" hidden>Just kidding. Nothing is being downloaded.</p>
+    <div class="win-actions">
+      <button type="button" class="w98btn" id="vok">OK</button>
+      <button type="button" class="w98btn" id="vcancel">Cancel</button>
+    </div>
+  </div>
+
   <script>
+  // Hex dump scan animation (decorative demo data only)
   (function () {
-    // Decorative demo data only: a fake "MZ" header plus the site name hidden at 0x30.
     var NAME = "0xGhostSh3ll", START = 0x30, W = 8, N = 80;
     var bytes = [], s = 0x2f6e1, i, k;
     function rnd() { s = (s * 1103515245 + 12345) & 0x7fffffff; return (s >> 16) & 255; }
@@ -217,7 +344,6 @@
       var t0 = 150 + rows.length * 90 + 150;
       later(function () { logs[1].classList.add("on"); }, t0);
 
-      // Cyan scan sweeps the bytes before the string, with a short trailing glow.
       for (var n = 0; n < START; n++) {
         (function (n) {
           later(function () {
@@ -227,7 +353,6 @@
         })(n);
       }
 
-      // Amber lock-on, byte by byte, as the string is decoded.
       var t1 = t0 + START * 14 + 80;
       later(function () {
         for (var m = START - 3; m < START; m++) mark(m, "scan", false);
@@ -241,6 +366,76 @@
 
     document.getElementById("replay").addEventListener("click", play);
     play();
+  })();
+  </script>
+
+  <script>
+  // Hex rain on the sides (skipped on small screens and for reduced motion)
+  (function () {
+    var cv = document.getElementById("rain");
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) { cv.style.display = "none"; return; }
+    var cx = cv.getContext("2d"), size = 16, trail = 14, cols = 0, drops = [];
+    var hexs = "0123456789abcdef", W = 0, H = 0;
+
+    function resize() {
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = innerWidth; H = innerHeight;
+      cv.width = W * dpr; cv.height = H * dpr;
+      cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      cols = Math.ceil(W / size); drops = [];
+      for (var i = 0; i < cols; i++) drops[i] = Math.random() * (H / size);
+    }
+
+    function draw() {
+      if (W <= 900) { requestAnimationFrame(draw); return; }
+      cx.clearRect(0, 0, W, H);
+      cx.font = "14px 'IBM Plex Mono', monospace";
+      for (var i = 0; i < cols; i++) {
+        var head = Math.floor(drops[i]);
+        for (var t = 0; t < trail; t++) {
+          var row = head - t;
+          if (row < 0) continue;
+          cx.fillStyle = "rgba(98,198,217," + ((1 - t / trail) * 0.9).toFixed(2) + ")";
+          cx.fillText(hexs[(i * 7 + row * 13) % 16], i * size, row * size);
+        }
+        drops[i] += 0.12 + (i % 5) * 0.03;
+        if (head - trail > H / size) drops[i] = Math.random() * -20;
+      }
+      requestAnimationFrame(draw);
+    }
+
+    resize(); addEventListener("resize", resize); draw();
+  })();
+  </script>
+
+  <script>
+  // Fake "Virus Alert" popup (decorative, downloads nothing)
+  (function () {
+    var win = document.getElementById("virus"), fill = document.getElementById("vfill"),
+        note = document.getElementById("vnote"), opener = document.getElementById("runSample"),
+        reduce = matchMedia("(prefers-reduced-motion: reduce)").matches, timer = 0, p = 0, loops = 0;
+
+    function step() {
+      p += 5;
+      if (p > 100) { p = 0; loops++; if (loops === 2) note.hidden = false; }
+      fill.style.width = p + "%";
+    }
+    function open(focusOk) {
+      clearInterval(timer);
+      p = 0; loops = 0; note.hidden = true; fill.style.width = "0%";
+      win.hidden = false;
+      if (reduce) { fill.style.width = "60%"; note.hidden = false; }
+      else timer = setInterval(step, 120);
+      if (focusOk) document.getElementById("vok").focus();
+    }
+    function close() { clearInterval(timer); win.hidden = true; opener.focus(); }
+
+    opener.addEventListener("click", function () { open(true); });
+    ["vok", "vcancel", "vclose"].forEach(function (id) {
+      document.getElementById(id).addEventListener("click", close);
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !win.hidden) close(); });
+    open(false); // shows automatically on every page load
   })();
   </script>
 </body>
