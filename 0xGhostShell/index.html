@@ -3,23 +3,245 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
   <title>0xGhostSh3ll | Writeups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    body { background:#0d1117; color:#c9d1d9; font-family:monospace; max-width:720px; margin:40px auto; padding:0 16px; line-height:1.6; }
-    h1 { color:#58a6ff; }
-    a { color:#58a6ff; text-decoration:none; }
-    a:hover { text-decoration:underline; }
-    li { margin:8px 0; }
-    small { color:#8b949e; }
+    :root {
+      --bg: #0f1218;
+      --panel: #151a23;
+      --line: #252c39;
+      --text: #cfd6e4;
+      --dim: #6c7689;
+      --amber: #f0b24b;
+      --cyan: #62c6d9;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.65 "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    }
+    main { max-width: 760px; margin: 0 auto; padding: 48px 16px 64px; }
+    h1 {
+      margin: 0 0 4px;
+      font-size: clamp(1.9rem, 6vw, 2.6rem);
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: #eef2fa;
+    }
+    .tag { margin: 0 0 24px; color: var(--dim); }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+
+    /* Hex dump */
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: 28px; align-items: start; margin-bottom: 44px; }
+    .portrait { margin: 0; }
+    .portrait img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+    .portrait figcaption { margin-top: 6px; font-size: 12px; color: var(--dim); }
+    .lab { display: grid; gap: 14px; justify-items: start; }
+    .hex {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.75;
+      overflow-x: auto;
+    }
+    .row { display: flex; gap: 14px; white-space: pre; opacity: 0; transition: opacity .25s; }
+    .row.on { opacity: 1; }
+    .off { color: var(--dim); }
+    .b { padding: 0 3px; margin-right: 1px; border-radius: 3px; }
+    .c { border-radius: 2px; }
+    .mz { color: var(--cyan); }
+    .scan { background: rgba(98, 198, 217, .22); color: #fff; }
+    .hit { background: rgba(240, 178, 75, .28); color: var(--amber); }
+
+    /* Analysis log */
+    .log { font-size: 13px; line-height: 1.9; color: var(--dim); }
+    .log p { margin: 0; opacity: 0; transition: opacity .25s; }
+    .log p.on { opacity: 1; }
+    .log .ok { color: var(--amber); }
+    #replay {
+      margin-top: 12px;
+      padding: 4px 12px;
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    #replay:hover { border-color: var(--cyan); }
+
+    @media (max-width: 640px) {
+      .hero { grid-template-columns: 1fr; }
+      .portrait { order: -1; max-width: 220px; }
+      .hex { font-size: 12px; padding: 10px; }
+      .row { gap: 10px; }
+    }
+
+    /* Writeups */
+    h2 {
+      margin: 0 0 4px;
+      padding-bottom: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--dim);
+      border-bottom: 1px solid var(--line);
+    }
+    ul { list-style: none; margin: 0 0 40px; padding: 0; }
+    li {
+      display: grid;
+      grid-template-columns: 7.5em 1fr;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    li time { color: var(--dim); font-size: .9em; }
+    .links { display: flex; gap: 20px; }
   </style>
 </head>
 <body>
-  <h1>0xGhostSh3ll</h1>
-  <p>Security writeups and notes.</p>
-  <h2>Writeups</h2>
-  <ul>
-    <li><a href="writeups/first-writeup.html">My first writeup</a> <small>2026-11-28</small></li>
-  </ul>
-  <p><a href="https://hackerone.com/0xghostshell">HackerOne</a> · <a href="https://github.com/0xGhostSh3ll">GitHub</a></p>
+  <main>
+    <header class="hero">
+      <div class="intro">
+        <h1>0xGhostSh3ll</h1>
+        <p class="tag">Security writeups and notes on malware analysis.</p>
+
+        <section class="lab">
+          <div class="hex" id="hex" aria-hidden="true"></div>
+          <div>
+            <div class="log" aria-hidden="true">
+              <p>[*] sample.bin loaded, 80 bytes</p>
+              <p>[*] MZ header found, scanning for strings</p>
+              <p>[*] string candidate at 0x30, 12 bytes</p>
+              <p class="ok">[+] decoded: 0xGhostSh3ll</p>
+            </div>
+            <button id="replay" type="button">Replay scan</button>
+          </div>
+        </section>
+      </div>
+
+      <figure class="portrait">
+        <img src="images/malware_hero.jpg" width="520" height="924"
+             alt="Pixel art portrait of a white-haired armored warrior with a golden halo, red cape and a sword">
+        <figcaption>avatar.jpg</figcaption>
+      </figure>
+    </header>
+
+    <h2>Writeups</h2>
+    <ul>
+      <li><time datetime="2026-11-28">2026-11-28</time><a href="writeups/first-writeup.html">My first writeup</a></li>
+    </ul>
+
+    <div class="links">
+      <a href="https://hackerone.com/0xghostshell">HackerOne</a>
+      <a href="https://github.com/0xGhostSh3ll">GitHub</a>
+    </div>
+  </main>
+
+  <script>
+  (function () {
+    // Decorative demo data only: a fake "MZ" header plus the site name hidden at 0x30.
+    var NAME = "0xGhostSh3ll", START = 0x30, W = 8, N = 80;
+    var bytes = [], s = 0x2f6e1, i, k;
+    function rnd() { s = (s * 1103515245 + 12345) & 0x7fffffff; return (s >> 16) & 255; }
+    for (i = 0; i < N; i++) bytes[i] = rnd();
+    [0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00]
+      .forEach(function (v, j) { bytes[j] = v; });
+    for (i = 40; i < 48; i++) bytes[i] = 0;
+    for (i = 60; i < 64; i++) bytes[i] = 0;
+    for (i = 0; i < NAME.length; i++) bytes[START + i] = NAME.charCodeAt(i);
+
+    var hex = document.getElementById("hex");
+    var logs = document.querySelectorAll(".log p");
+    var rows = [], B = [], C = [];
+
+    for (var r = 0; r < N / W; r++) {
+      var row = document.createElement("div"); row.className = "row";
+      var off = document.createElement("span"); off.className = "off";
+      off.textContent = "0x" + (r * W).toString(16).padStart(2, "0");
+      var bs = document.createElement("span"), cs = document.createElement("span");
+      for (k = 0; k < W; k++) {
+        var idx = r * W + k, v = bytes[idx];
+        var b = document.createElement("span");
+        b.className = "b" + (idx < 2 ? " mz" : "");
+        b.textContent = v.toString(16).padStart(2, "0");
+        bs.appendChild(b); B[idx] = b;
+        var c = document.createElement("span"); c.className = "c";
+        c.textContent = v > 31 && v < 127 ? String.fromCharCode(v) : ".";
+        cs.appendChild(c); C[idx] = c;
+      }
+      row.appendChild(off); row.appendChild(bs); row.appendChild(cs);
+      hex.appendChild(row); rows.push(row);
+    }
+
+    var timers = [];
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+    function mark(idx, cls, on) { B[idx].classList[on ? "add" : "remove"](cls); C[idx].classList[on ? "add" : "remove"](cls); }
+
+    function reset() {
+      timers.forEach(clearTimeout); timers = [];
+      rows.forEach(function (x) { x.classList.remove("on"); });
+      for (var j = 0; j < N; j++) { mark(j, "scan", false); mark(j, "hit", false); }
+      logs.forEach(function (p) { p.classList.remove("on"); });
+    }
+
+    function showFinal() {
+      rows.forEach(function (x) { x.classList.add("on"); });
+      for (var j = 0; j < NAME.length; j++) mark(START + j, "hit", true);
+      logs.forEach(function (p) { p.classList.add("on"); });
+    }
+
+    function play() {
+      reset();
+      if (reduce) { showFinal(); return; }
+      logs[0].classList.add("on");
+      rows.forEach(function (x, n) { later(function () { x.classList.add("on"); }, 150 + n * 90); });
+
+      var t0 = 150 + rows.length * 90 + 150;
+      later(function () { logs[1].classList.add("on"); }, t0);
+
+      // Cyan scan sweeps the bytes before the string, with a short trailing glow.
+      for (var n = 0; n < START; n++) {
+        (function (n) {
+          later(function () {
+            mark(n, "scan", true);
+            if (n >= 3) mark(n - 3, "scan", false);
+          }, t0 + n * 14);
+        })(n);
+      }
+
+      // Amber lock-on, byte by byte, as the string is decoded.
+      var t1 = t0 + START * 14 + 80;
+      later(function () {
+        for (var m = START - 3; m < START; m++) mark(m, "scan", false);
+        logs[2].classList.add("on");
+      }, t1);
+      for (var q = 0; q < NAME.length; q++) {
+        (function (q) { later(function () { mark(START + q, "hit", true); }, t1 + q * 70); })(q);
+      }
+      later(function () { logs[3].classList.add("on"); }, t1 + NAME.length * 70 + 120);
+    }
+
+    document.getElementById("replay").addEventListener("click", play);
+    play();
+  })();
+  </script>
 </body>
 </html>
